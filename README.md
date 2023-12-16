@@ -14,10 +14,11 @@ This course is available [in this repository](https://github.com/stevehoover/LF-
 
 ## Awe's Wisdom
 
-Do a git clone of this repo and then run these commands to install local makerchip:
+Do a git clone of this repo and then run these commands to install and use local makerchip:
 ```
 pipx install makerchip-app
 pipx inject makerchip-app setuptools
+makerchip <file>
 ```
 
 ## Welcome
