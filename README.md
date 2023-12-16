@@ -12,6 +12,14 @@ This course is available [in this repository](https://github.com/stevehoover/LF-
 
 ![VIZ](LF_VIZ.png)
 
+## Awe's Wisdom
+
+Do a git clone of this repo and then run these commands to install local makerchip:
+```
+pipx install makerchip-app
+pipx inject makerchip-app setuptools
+```
+
 ## Welcome
 
 Congratulations for taking this step to expand your knowledge of computer hardware.
