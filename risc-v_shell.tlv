@@ -49,6 +49,10 @@
    `READONLY_MEM($pc, $$instr[31:0])
    
    // INSTRUCTION DECODER
+   `BOGUS_USE($opcode $rd $rd_valid $rs1 $rs1_valid
+              $rs2 $rs2_valid $funct3 $funct3_valid $imm_valid)
+   
+   // opcodes
    $is_u_instr = $instr[6:2] ==? 5'b0x101;
    
    $is_i_instr = $instr[6:2] ==? 5'b001x0 ||
@@ -64,6 +68,24 @@
                  $instr[6:2] ==  5'b10100;
    
    $is_j_instr = $instr[6:2] ==  5'b11011;
+   
+   // extract non-imm fields
+   
+   $rd[4:0]  = $instr[11:7];
+   $rs1[4:0] = $instr[19:15];
+   $rs2[4:0] = $instr[24:20];
+   $funct3[2:0] = $instr[14:12];
+   $opcode[6:0] = $instr[6:0];
+   
+   // bits for validity of fields
+   $rd_valid  = $is_r_instr || $is_i_instr || $is_u_instr || $is_j_instr;
+   $rs1_valid = $is_r_instr || $is_i_instr || $is_s_instr || $is_b_instr;
+   $rs2_valid = $is_r_instr ||                $is_s_instr || $is_b_instr;
+   
+   $funct3_valid = $rs1_valid;
+   
+   $imm_valid = $is_r_instr || $is_i_instr || $is_s_instr || $is_b_instr ||
+                $is_u_instr || $is_j_instr;
 
    
    // Assert these to end simulation (before Makerchip cycle limit).
