@@ -44,8 +44,12 @@
    // PROGRAM COUNTER
    $reset = *reset;
    $pc[31:0] = >>1$next_pc;
-   $next_pc[31:0] = $taken_br ? $br_tgt_pc :
-       $reset ? 0 : $pc + 4;
+   $next_pc[31:0] =
+      $is_jalr ?
+         $jalr_tgt_pc :
+      $taken_br || $is_jal ?
+         $br_tgt_pc :
+      $reset ? 0 : $pc + 4;
    
    // INSTRUCTION MEMORY
    `READONLY_MEM($pc, $$instr[31:0])
@@ -149,8 +153,6 @@
       $is_bge  ? ($src1_value >= $src2_value) ^ ($src1_value[31] != $src2_value[31]) :
       1'b0;
    
-   $br_tgt_pc[31:0] = $pc + $imm;
-   
    //EXECUTE
    //alu
    
@@ -194,6 +196,10 @@
       $is_sra  ? $sra_rslt[31:0] :
       $is_srai ? $srai_rslt[31:0] :
       32'b0;
+   
+   //jump calculations
+   $br_tgt_pc[31:0] = $pc + $imm;
+   $jalr_tgt_pc[31:0] = $src1_value + $imm;
    
    // Assert these to end simulation (before Makerchip cycle limit).
    m4+tb()
