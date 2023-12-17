@@ -43,7 +43,8 @@
    // PROGRAM COUNTER
    $reset = *reset;
    $pc[31:0] = >>1$next_pc;
-   $next_pc[31:0] = $reset ? 0 : $pc + 4;
+   $next_pc[31:0] = $taken_br ? $br_tgt_pc :
+       $reset ? 0 : $pc + 4;
    
    // INSTRUCTION MEMORY
    `READONLY_MEM($pc, $$instr[31:0])
@@ -96,6 +97,7 @@
                 $is_u_instr || $is_j_instr;
    
    // DECODE
+   // instr. decoder
    `BOGUS_USE($is_beq $is_bne $is_blt $is_bge $is_bltu $is_bgeu $is_add $is_addi)
    
    $dec_bits[10:0] = {$instr[30], $funct3, $opcode};
@@ -110,6 +112,18 @@
    $is_add  = $dec_bits ==? 11'bx_000_0110011;
    $is_addi = $dec_bits ==? 11'bx_000_0010011;
    
+   //branch logic
+   $taken_br =
+      $is_beq  ? $src1_value == $src2_value :
+      $is_bne  ? $src1_value != $src2_value :
+      $is_bltu ? $src1_value  < $src2_value :
+      $is_bgeu ? $src1_value >= $src2_value :
+      $is_blt  ? ($src1_value < $src2_value)  ^ ($src1_value[31] != $src2_value[31]) :
+      $is_bge  ? ($src1_value >= $src2_value) ^ ($src1_value[31] != $src2_value[31]) :
+      1'b0;
+   
+   $br_tgt_pc[31:0] = $pc + $imm;
+   
    //EXECUTE
    //alu
    $result[31:0] =
@@ -118,7 +132,7 @@
       32'b0;
    
    // Assert these to end simulation (before Makerchip cycle limit).
-   *passed = 1'b0;
+   m4+tb()
    *failed = *cyc_cnt > M4_MAX_CYC;
    
    // register file (technically part of decode but connects to stuff in writeback)
